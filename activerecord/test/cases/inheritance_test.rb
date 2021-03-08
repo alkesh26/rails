@@ -374,15 +374,15 @@ class InheritanceTest < ActiveRecord::TestCase
     end
   end
 
-  def test_new_with_autoload_paths
-    path = File.expand_path("../models/autoloadable", __dir__)
-    ActiveSupport::Dependencies.autoload_paths << path
+  def test_new_with_autoloaded_constant
+    extra_firm_rb = File.expand_path("../models/autoloadable/extra_firm.rb", __dir__)
+    Object.autoload :ExtraFirm, extra_firm_rb
 
     firm = Company.new(type: "ExtraFirm")
     assert_equal ExtraFirm, firm.class
   ensure
-    ActiveSupport::Dependencies.autoload_paths.reject! { |p| p == path }
-    ActiveSupport::Dependencies.clear
+    Object.send(:remove_const, :ExtraFirm)
+    $LOADED_FEATURES.delete(extra_firm_rb)
   end
 
   def test_inheritance_condition
